@@ -25,10 +25,7 @@ func CmdLoop(m *storage.Metadata) {
 			continue
 		}
 		if params.save {
-			if m.OnlySave() {
-				fmt.Println("Changes Save Succesfully")
-				m.ChangesMade(false)
-			}
+			m.OnlySave()
 			continue
 		}
 		if params.ls {

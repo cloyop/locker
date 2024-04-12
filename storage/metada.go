@@ -49,8 +49,11 @@ func (m *Metadata) encryptInsideData() {
 }
 
 // Exit
-func (m Metadata) OnlySave() bool {
-	return m.Save()
+func (m Metadata) OnlySave() {
+	if m.Save() {
+		fmt.Println("Changes Save Succesfully")
+		m.ChangesMade(false)
+	}
 }
 func (m *Metadata) Save() bool {
 	m.encryptInsideData()
