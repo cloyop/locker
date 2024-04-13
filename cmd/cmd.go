@@ -51,7 +51,6 @@ func CmdLoop(m *storage.Metadata) {
 	}
 }
 func processInput(input string) (action, name string, params []string, err error) {
-	input = strings.ToLower(input)
 	args := strings.Split(input, " ")
 	size := len(args)
 	action = args[0]
@@ -60,7 +59,7 @@ func processInput(input string) (action, name string, params []string, err error
 		return
 	}
 	if size > 1 {
-		name = args[1]
+		name = strings.ToLower(args[1])
 	}
 	if size > 2 {
 		params = args[2:]
