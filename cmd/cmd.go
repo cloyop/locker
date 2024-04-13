@@ -28,6 +28,7 @@ func CmdLoop(m *storage.Metadata) {
 			m.OnlySave()
 			continue
 		}
+		m.NeedPin()
 		if action == "ls" {
 			actionList(name, params, m)
 			continue
@@ -36,8 +37,6 @@ func CmdLoop(m *storage.Metadata) {
 			fmt.Println("Missing Name: '<action> <name> <key> <value>'")
 			continue
 		}
-		m.NeedPin()
-		m.LastActionDone()
 		switch action {
 		case "rm":
 			actionRemove(name, m)
