@@ -25,6 +25,10 @@ type KeyValueStore struct {
 
 // Prints
 func (s *StoreData) PrintList() {
+	if len(*s) == 0 {
+		fmt.Println("No Data")
+		return
+	}
 	var list = "All data:\n\n"
 	for key, value := range *s {
 		if value.Value != "" {
@@ -36,6 +40,10 @@ func (s *StoreData) PrintList() {
 	fmt.Println(list)
 }
 func (s *StoreData) PrintListNames() {
+	if len(*s) == 0 {
+		fmt.Println("No Data")
+		return
+	}
 	var list = "All data:\n\n"
 	for key := range *s {
 		list += fmt.Sprintf("%v\n", key)
@@ -43,6 +51,10 @@ func (s *StoreData) PrintListNames() {
 	fmt.Println(list)
 }
 func (s *StoreData) PrintInFile() {
+	if len(*s) == 0 {
+		fmt.Println("No Data")
+		return
+	}
 	fn := strings.Split(strings.Replace(time.Now().String(), " ", "_", 1), ".")[0]
 	f, err := os.OpenFile(fn+".json", os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {

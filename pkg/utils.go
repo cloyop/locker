@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 )
 
 func ClearTerminal() {
@@ -54,14 +53,9 @@ func GetLockerFIle() *os.File {
 	}
 	return file
 }
-func Config() bool {
-	var founded bool
-	for _, v := range os.Environ() {
-		if strings.HasPrefix(v, "LOCKER_PATH") {
-			spl := strings.Split(v, "=")
-			os.Setenv(spl[0], spl[1])
-			founded = true
-		}
+func Config() (found bool) {
+	if os.Getenv("LOCKER_PATH") != "" {
+		found = true
 	}
-	return founded
+	return
 }

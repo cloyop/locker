@@ -91,16 +91,27 @@ func (m *Metadata) Decode(data []byte) error {
 }
 
 // Misc
-func (m *Metadata) SetFromJson(f *os.File) error {
+func (m *Metadata) SetFromJson(fn string) {
+	f, err := os.Open(fn)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
 	var thing map[string]KeyValueStore
 	if err := json.NewDecoder(f).Decode(&thing); err != nil {
-		return err
+		fmt.Println(err)
+		return
+	}
+	if pkg.ScanLine("this action can overwrite existing values, want to continue? (Y/n): ") == "n" {
+		return
 	}
 	for name, v := range thing {
 		name = strings.ToLower(name)
 		m.Data[name] = KeyValueStore{Key: v.Key, Value: v.Value}
 	}
-	return nil
+	m.ChangesMade(true)
+	fmt.Println("Success writes")
 }
 func (m *Metadata) NeedPin() {
 	if m.PinPerm.Using {

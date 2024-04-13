@@ -11,98 +11,60 @@ import (
 func CmdLoop(m *storage.Metadata) {
 	pkg.ClearTerminal()
 	for {
-		params := processInput(pkg.ScanLine("Locker do: "))
-		if params.err != nil {
-			fmt.Println(params.err)
+		action, name, params, err := processInput(pkg.ScanLine("Locker do: "))
+		if err != nil {
+			fmt.Println(err)
 			continue
 		}
-		if params.exit {
+		if action == "exit" {
 			m.Exit()
 			break
 		}
-		if params.clear {
+		if action == "clear" {
 			pkg.ClearTerminal()
 			continue
 		}
-		if params.save {
+		if action == "save" {
 			m.OnlySave()
 			continue
 		}
-		if params.ls {
-			ListAction(params, m)
+		if action == "ls" {
+			actionList(name, params, m)
+			continue
+		}
+		if name == "" {
+			fmt.Println("Missing Name: '<action> <name> <key> <value>'")
 			continue
 		}
 		m.NeedPin()
 		m.LastActionDone()
-		switch params.action {
+		switch action {
 		case "rm":
-			ActionDelete(params, m)
+			actionRemove(name, m)
 			continue
 		case "get":
-			ActionGet(params, m)
+			actionGet(name, m)
 			continue
 		case "set":
-			ActionSet(params, m)
+			actionSet(name, params, m)
 			continue
 		}
 	}
 }
-func processInput(input string) *CMDParams {
-	p := &CMDParams{}
+func processInput(input string) (action, name string, params []string, err error) {
 	input = strings.ToLower(input)
 	args := strings.Split(input, " ")
 	size := len(args)
-	if size == 0 {
-		p.err = fmt.Errorf("nothing to do")
-		return p
+	action = args[0]
+	if !validAction(&action) {
+		err = fmt.Errorf("first param must be ( get | set | rm | ls | save | clear | exit  ) recieved %v", action)
+		return
 	}
-	p.action = args[0]
-	if !validAction(&p.action) {
-		p.err = fmt.Errorf("first param must be ( get | set | rm | ls | save | clear | exit  ) recieved %v", p.action)
-		return p
+	if size > 1 {
+		name = args[1]
 	}
-	if toSave(&p.action) {
-		p.save = true
-		return p
+	if size > 2 {
+		params = args[2:]
 	}
-	if toExit(&p.action) {
-		p.exit = true
-		return p
-	}
-	if clearConsole(&p.action) {
-		p.clear = true
-		return p
-	}
-	if listData(&p.action) {
-		if size > 1 {
-			p.name = args[1]
-		}
-		if size > 2 {
-			p.kvs.Key = args[2]
-		}
-		p.ls = true
-		return p
-	}
-	if size < 2 {
-		p.err = fmt.Errorf("missing params")
-		return p
-	}
-	p.name = args[1]
-
-	if p.action == "set" {
-		if size <= 2 {
-			p.err = fmt.Errorf("missing value to set")
-			return p
-		}
-		if args[size-1] == "-" {
-			p.kvs.Key = strings.Join(args[2:size-1], " ")
-			return p
-		}
-		p.kvs.Key = args[2]
-		if size > 3 {
-			joined := strings.Join(args[3:], " ")
-			p.kvs.Value = joined
-		}
-	}
-	return p
+	return
 }
