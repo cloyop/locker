@@ -51,10 +51,6 @@ func (s *StoreData) PrintListNames() {
 	fmt.Println(list)
 }
 func (s *StoreData) PrintInFile() {
-	if len(*s) == 0 {
-		fmt.Println("No Data")
-		return
-	}
 	fn := strings.Split(strings.Replace(time.Now().String(), " ", "_", 1), ".")[0]
 	f, err := os.OpenFile(fn+".json", os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {

@@ -49,11 +49,11 @@ func actionSet(name string, params []string, m *storage.Metadata) {
 	m.ChangesMade(true)
 }
 func actionGet(name string, m *storage.Metadata) {
+	if len(m.Data) == 0 {
+		fmt.Println("No Data")
+		return
+	}
 	if name == "-f" {
-		if len(m.Data) == 0 {
-			fmt.Println("No Data")
-			return
-		}
 		m.Data.PrintInFile()
 		return
 	}
