@@ -2,7 +2,9 @@
 
 ## small CLI app to store your password in safe
 
-### I was tired of having my passwords in excel. is not fully baked but its work correctly
+### I made it because was tired of having my passwords in excel.
+### maybe add things later but works fine
+
 - copy, build and use. it will get u through initialization.
 - leave me your star
 ---
