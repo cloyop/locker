@@ -29,9 +29,9 @@
 
     get itemname
 
-### can gen a json report of your data with get -f, it will create a json with the date as name in the directory where u call the app
-
-    get -f
+### can gen a json report of your data with get -f, it will create a json in the directory where u call the app
+### the third param will be the name (without ext), this is optional due that default name is the long date name
+    get -f <filename> 
 
 ## Setter
 

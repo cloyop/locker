@@ -48,13 +48,19 @@ func actionSet(name string, params []string, m *storage.Metadata) {
 	kvs.Print()
 	m.ChangesMade(true)
 }
-func actionGet(name string, m *storage.Metadata) {
+func actionGet(name string, params []string, m *storage.Metadata) {
+	size := len(params)
+
 	if len(m.Data) == 0 {
 		fmt.Println("No Data")
 		return
 	}
 	if name == "-f" {
-		m.Data.PrintInFile()
+		var fn string
+		if size > 0 {
+			fn = params[0]
+		}
+		m.Data.PrintInFile(fn)
 		return
 	}
 	kvs, exist := m.Data[name]

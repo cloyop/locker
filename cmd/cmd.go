@@ -42,7 +42,7 @@ func CmdLoop(m *storage.Metadata) {
 			actionRemove(name, m)
 			continue
 		case "get":
-			actionGet(name, m)
+			actionGet(name, params, m)
 			continue
 		case "set":
 			actionSet(name, params, m)

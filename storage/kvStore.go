@@ -50,8 +50,10 @@ func (s *StoreData) PrintListNames() {
 	}
 	fmt.Println(list)
 }
-func (s *StoreData) PrintInFile() {
-	fn := strings.Split(strings.Replace(time.Now().String(), " ", "_", 1), ".")[0]
+func (s *StoreData) PrintInFile(fn string) {
+	if fn == "" {
+		fn = strings.Split(strings.Replace(time.Now().String(), " ", "_", 1), ".")[0]
+	}
 	f, err := os.OpenFile(fn+".json", os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		fmt.Println(err)
@@ -59,7 +61,9 @@ func (s *StoreData) PrintInFile() {
 	}
 	defer f.Close()
 	fmt.Println("File Created")
-	if err = json.NewEncoder(f).Encode(s); err != nil {
+	enc := json.NewEncoder(f)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(s); err != nil {
 		fmt.Println(err)
 		return
 	}
