@@ -23,8 +23,8 @@ func NormalPath() {
 	f.Close()
 	metadata := storage.NewMetaData()
 	for !valid {
-		password := pkg.ScanLine("insert your password: ")
-		for len(password) < 8 {
+		password := pkg.ScanLine("insert your password:")
+		if len(password) < 8 {
 			fmt.Println("Invalid password length")
 			continue
 		}
