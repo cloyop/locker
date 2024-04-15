@@ -25,7 +25,10 @@ func CmdLoop(m *storage.Metadata) {
 			continue
 		}
 		if action == "save" {
-			m.OnlySave()
+			if m.OnlySave() {
+				fmt.Println("Changes Save Succesfully")
+				m.ChangesMade(false)
+			}
 			continue
 		}
 		m.NeedPin()
