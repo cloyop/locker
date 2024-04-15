@@ -50,7 +50,7 @@ func (m *Metadata) encryptInsideData() {
 
 // Exit
 func (m Metadata) OnlySave() {
-	if m.Save() {
+	if m.changesMade && m.Save() {
 		fmt.Println("Changes Save Succesfully")
 		m.ChangesMade(false)
 	}

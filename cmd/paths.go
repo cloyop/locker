@@ -17,10 +17,11 @@ func NormalPath() {
 	var valid bool
 	f := pkg.GetLockerFIle()
 	buffer := new(bytes.Buffer)
-	if _, err := io.Copy(buffer, f); err != nil {
+	_, err := io.Copy(buffer, f)
+	f.Close()
+	if err != nil {
 		log.Fatal(err)
 	}
-	f.Close()
 	metadata := storage.NewMetaData()
 	for !valid {
 		password := pkg.ScanLine("insert your password:")
@@ -76,7 +77,6 @@ func InitPath() {
 	firstStepPassword := pkg.ScanLine("insert password: ")
 	for len(firstStepPassword) < 8 {
 		fmt.Println("Password must be minimun 8 characters")
-
 		firstStepPassword = pkg.ScanLine("insert password: ")
 	}
 	metadata.SetPassword(firstStepPassword)
