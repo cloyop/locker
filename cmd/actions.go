@@ -10,7 +10,7 @@ import (
 
 func actionSet(name string, params []string, m *storage.Metadata) {
 	size := len(params)
-	kvs := storage.KeyValueStore{}
+	kvs := &storage.KeyValueStore{}
 	if size < 1 {
 		fmt.Printf("missing key, do: 'set %v <key> <value>' - value optional \n", name)
 		return
@@ -46,7 +46,7 @@ func actionSet(name string, params []string, m *storage.Metadata) {
 	m.Data[name] = kvs
 	fmt.Println("Sucessfully Saved item ->", name)
 	kvs.Print()
-	m.ChangesMade(true)
+	m.ChangesMade = true
 }
 func actionGet(name string, params []string, m *storage.Metadata) {
 	size := len(params)
@@ -78,7 +78,7 @@ func actionRemove(name string, m *storage.Metadata) {
 		}
 		m.Data = storage.StoreData{}
 		fmt.Println("all data removed Succesfully")
-		m.ChangesMade(true)
+		m.ChangesMade = true
 		return
 	}
 	_, exist := m.Data[name]
@@ -88,7 +88,7 @@ func actionRemove(name string, m *storage.Metadata) {
 	}
 	delete(m.Data, name)
 	fmt.Printf("Item %v removed Successfully\n", name)
-	m.ChangesMade(true)
+	m.ChangesMade = true
 }
 func actionList(name string, params []string, m *storage.Metadata) {
 	size := len(params)

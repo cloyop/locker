@@ -11,12 +11,7 @@ import (
 	"time"
 )
 
-type pinPerm struct {
-	RequestForIt int
-	Using        bool
-	pin          string
-}
-type StoreData map[string]KeyValueStore
+type StoreData map[string]*KeyValueStore
 
 type KeyValueStore struct {
 	Key   string `json:"key"`
@@ -87,11 +82,4 @@ func (s *StoreData) Decode(data *[]byte) error {
 		return err
 	}
 	return gob.NewDecoder(b).Decode(s)
-}
-
-func (p *pinPerm) PinIsValid(pin string) bool {
-	return p.pin == pin
-}
-func (p *pinPerm) SetPin(pin string) {
-	p.pin = pin
 }

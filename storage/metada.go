@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
-	"fmt"
-	"io"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -15,118 +12,60 @@ import (
 )
 
 type Metadata struct {
-	changesMade bool
-	password    string
-	PinPerm     pinPerm
-	lastAction  time.Time
-	SafeData    []byte
+	ChangesMade bool
+	LastAction  time.Time
+	Password    string
+	Pin         string
 	Data        StoreData
 }
 
 func NewMetaData() *Metadata {
 	return &Metadata{
-		Data:    make(StoreData),
-		PinPerm: pinPerm{RequestForIt: 10},
+		Data: StoreData{},
 	}
 }
 
-// encrypt
-func (m *Metadata) DecryptInsideData() error {
-	byts, err := pkg.MustUnCipher([]byte(m.password+m.PinPerm.pin), m.SafeData)
+func (m Metadata) Save() error {
+	layerOneBuffer := new(bytes.Buffer)
+	if err := gob.NewEncoder(layerOneBuffer).Encode(&m.Data); err != nil {
+		return err
+	}
+	SafeStoreData, err := pkg.Cipher([]byte(m.Password+m.Pin), layerOneBuffer.Bytes())
 	if err != nil {
 		return err
 	}
-	m.SafeData = byts
+	SafeToWrite, err := pkg.Cipher([]byte(m.Password), SafeStoreData)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(os.Getenv("LOCKER_PATH")+"/locker.txt", SafeToWrite, os.ModePerm); err != nil {
+		return err
+	}
 	return nil
 }
-func (m *Metadata) encryptInsideData() {
-	buffer := new(bytes.Buffer)
-	if err := m.Data.Encode(buffer); err != nil {
-		log.Fatal(err)
-	}
-	m.SafeData = pkg.MustCipherText([]byte(m.password+m.PinPerm.pin), buffer.Bytes())
-	m.Data = StoreData{}
-}
-
-// Exit
-func (m Metadata) OnlySave() bool {
-	return m.changesMade && m.Save()
-}
-func (m *Metadata) Save() bool {
-	m.encryptInsideData()
-	buffer := new(bytes.Buffer)
-	if err := m.Encode(buffer); err != nil {
-		log.Fatal(err)
-	}
-	safeBytes := pkg.MustCipherText([]byte(m.password), buffer.Bytes())
-	f := pkg.GetLockerFIle()
-	defer f.Close()
-	if w, err := f.Write(safeBytes); w == 0 || err != nil {
-		return false
-	}
-	return true
-}
-func (m *Metadata) Exit() {
-	if m.changesMade {
-		fmt.Println("Saving changes...")
-		if m.Save() {
-			fmt.Println("Changes Saved Succesfully")
-		}
-	}
-}
-
-// Encoding
-func (m *Metadata) Encode(w io.Writer) error {
-	return gob.NewEncoder(w).Encode(m)
-}
-func (m *Metadata) Decode(data []byte) error {
-	b := new(bytes.Buffer)
-	if _, err := b.Write(data); err != nil {
-		return err
-	}
-	return gob.NewDecoder(b).Decode(m)
-}
-
-// Misc
-func (m *Metadata) SetFromJson(fn string) {
+func (m *Metadata) SetFromJson(fn string) error {
 	f, err := os.Open(fn)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	defer f.Close()
 	var thing map[string]KeyValueStore
 	if err := json.NewDecoder(f).Decode(&thing); err != nil {
-		fmt.Println(err)
-		return
-	}
-	if pkg.ScanLine("this action can overwrite existing values, want to continue? (Y/n): ") == "n" {
-		return
+		return err
 	}
 	for name, v := range thing {
 		name = strings.ToLower(name)
-		m.Data[name] = KeyValueStore{Key: v.Key, Value: v.Value}
+		m.Data[name] = &KeyValueStore{Key: v.Key, Value: v.Value}
 	}
-	m.ChangesMade(true)
-	fmt.Println("Success writes")
+	m.ChangesMade = true
+	return nil
 }
 func (m *Metadata) NeedPin() {
-	if m.PinPerm.Using {
-		if time.Since(m.lastAction) > time.Minute*time.Duration(m.PinPerm.RequestForIt) {
-			pin := pkg.ScanLine("u have been AFK. now i need your pin: ")
-			for !m.PinPerm.PinIsValid(pin) {
-				pin = pkg.ScanLine("Pin incorrect, insert again: ")
-			}
-			m.LastActionDone()
+	if time.Since(m.LastAction) > time.Minute*5 {
+		pin := pkg.ScanLine("u have been AFK. now i need your pin: ")
+		for pin != m.Pin {
+			pin = pkg.ScanLine("Pin incorrect, insert again: ")
 		}
+		m.LastAction = time.Now()
 	}
-}
-func (m *Metadata) SetPassword(pwd string) {
-	m.password = pwd
-}
-func (m *Metadata) LastActionDone() {
-	m.lastAction = time.Now()
-}
-func (m *Metadata) ChangesMade(b bool) {
-	m.changesMade = b
 }

@@ -17,7 +17,13 @@ func CmdLoop(m *storage.Metadata) {
 			continue
 		}
 		if action == "exit" {
-			m.Exit()
+			if m.ChangesMade {
+				if err := m.Save(); err != nil {
+					fmt.Println(err)
+					continue
+				}
+				fmt.Println("Data changes saved successfully before exit")
+			}
 			break
 		}
 		if action == "clear" {
@@ -25,9 +31,12 @@ func CmdLoop(m *storage.Metadata) {
 			continue
 		}
 		if action == "save" {
-			if m.OnlySave() {
-				fmt.Println("Changes Save Succesfully")
-				m.ChangesMade(false)
+			if m.ChangesMade {
+				if err := m.Save(); err != nil {
+					fmt.Println(err)
+					continue
+				}
+				fmt.Println("Data changes saved successfully")
 			}
 			continue
 		}

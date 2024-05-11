@@ -46,7 +46,7 @@ func ShouldInit() bool {
 	}
 	return false
 }
-func GetLockerFIle() *os.File {
+func GetLockerFile() *os.File {
 	file, err := os.OpenFile(os.Getenv("LOCKER_PATH")+"/locker.txt", os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		log.Fatal(err.Error())

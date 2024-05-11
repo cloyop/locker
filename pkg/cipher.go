@@ -14,11 +14,14 @@ func md(k []byte) string {
 	rs := md5.Sum(k)
 	return hex.EncodeToString(rs[:])
 }
-func MustCipherText(keyPhrase, value []byte) []byte {
+func Cipher(keyPhrase, value []byte) ([]byte, error) {
 	gcm := gcmInstance(keyPhrase)
 	nonce := make([]byte, gcm.NonceSize())
-	_, _ = io.ReadFull(rand.Reader, nonce)
-	return gcm.Seal(nonce, nonce, []byte(value), nil)
+	_, err := io.ReadFull(rand.Reader, nonce)
+	if err != nil {
+		return []byte{}, err
+	}
+	return gcm.Seal(nonce, nonce, value, nil), nil
 }
 func gcmInstance(keyPhrase []byte) cipher.AEAD {
 	hashedPhrase := md(keyPhrase)
@@ -32,7 +35,7 @@ func gcmInstance(keyPhrase []byte) cipher.AEAD {
 	}
 	return gcm
 }
-func MustUnCipher(keyPhrase, ciphered []byte) ([]byte, error) {
+func UnCipher(keyPhrase, ciphered []byte) ([]byte, error) {
 	gcm := gcmInstance(keyPhrase)
 	nonceSize := gcm.NonceSize()
 	nonce, cipheredText := ciphered[:nonceSize], ciphered[nonceSize:]
